@@ -25,7 +25,7 @@ irc.on( "PRIVMSG", function( args, nick )
 		local target, games = message:match( "^!ban%s+(%S+)%s+(%d+)$" )
 
 		if not target then
-			local target = message:match( "^!ban%s+(%S+)$" )
+			target = message:match( "^!ban%s+(%S+)$" )
 
 			if target then
 				games = 3
