@@ -25,18 +25,14 @@ getmetatable( "" ).__mod = function( self, form )
 	return self:format( form )
 end
 
--- json io helpers
 local json = require( "cjson.safe" )
 
 function io.readjson( path )
-	local fd = io.open( path, "r" )
+	local contents = io.contents( path )
 
-	if not fd then
+	if not contents then
 		return
 	end
-
-	local contents = assert( fd:read( "*all" ) )
-	assert( fd:close() )
 
 	return json.decode( contents )
 end
@@ -47,7 +43,19 @@ function io.writejson( path, data )
 	assert( fd:close() )
 end
 
--- table functions
+function io.contents( path )
+	local fd, err = io.open( path, "r" )
+
+	if not fd then
+		return nil, err
+	end
+
+	local contents = assert( fd:read( "*all" ) )
+	assert( fd:close() )
+
+	return contents
+end
+
 function table.find( self, value )
 	for i = 1, #self do
 		if self[ i ] == value then
@@ -89,7 +97,10 @@ function table.split( self, n )
 	return t1, t2
 end
 
--- string helpers
 function string.hasprefix( self, prefix )
 	return self:sub( 1, #prefix ) == prefix
+end
+
+function string.trim( self )
+	return self:match( "^%s*(.-)%s*$" )
 end
