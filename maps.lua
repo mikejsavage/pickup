@@ -4,24 +4,27 @@ local ops = require( "ops" )
 local pool = io.readjson( "maps.json" ) or { "wctf1", "wctf3", "wctf4", "wctf6" }
 local current = 0
 
-irc.on( "PRIVMSG", function( args, nick )
-	local message = args:sub( 2 )
-
-	if message == "!maps" then
+irc.command( "!maps", {
+	[ "^$" ] = function()
 		irc.say( "%s", table.concat( pool, " " ) )
-	end
+	end,
 
-	if message:find( "^!maps " ) then
-		if ops.isop( nick ) then
-			pool = { }
-			for map in message:match( "^!maps%s+(.*)$" ):gmatch( "(%S+)" ) do
-				table.insert( pool, map )
-			end
-			current = math.random( #pool )
-			irc.say( "%s: %s", nick, table.concat( pool, " " ) )
+	[ "^(.+)$" ] = function( nick, maps )
+		if not ops.isop( nick ) then
+			return
 		end
-	end
-end )
+
+		pool = { }
+		for map in maps:gmatch( "(%S+)" ) do
+			table.insert( pool, map )
+		end
+		current = math.random( #pool )
+
+		irc.say( "%s: %s", nick, table.concat( pool, " " ) )
+
+		io.writejson( "maps.json", pool )
+	end,
+} )
 
 local _M = { }
 

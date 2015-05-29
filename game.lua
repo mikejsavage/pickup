@@ -12,39 +12,42 @@ local function topic()
 	cmd( "%d/%d", #added, MAX )
 end
 
-irc.on( "PRIVMSG", function( args, nick )
-	local message = args:sub( 2 )
+irc.command( "+", function( nick, args )
+	if args ~= "" or table.find( added, nick ) then
+		return
+	end
 
-	if message == "+" then
-		if bans.isbanned( nick ) then
-			irc.say( "%s: go away", nick )
-			
-		elseif not table.find( added, nick ) then
-			table.insert( added, nick )
+	if bans.isbanned( nick ) then
+		irc.say( "%s: go away", nick )
+		return
+	end
 
-			if #added == MAX then
-				table.sort( added )
-				irc.say( "join the server pls nerds: %s. callvote map %s",
-					table.concat( added, " " ), maps.next() )
-				added = { }
+	table.insert( added, nick )
 
-				bans.decrement()
-			end
+	if #added == MAX then
+		table.sort( added )
+		irc.say( "join the server pls nerds: %s. callvote map %s",
+			table.concat( added, " " ), maps.next() )
+		added = { }
 
-			topic()
-		end
+		bans.decrement()
+	end
 
-	elseif message == "-" then
-		if table.find( added, nick ) then
-			table.removevalue( added, nick )
-			topic()
-		end
+	topic()
+end )
 
-	elseif message == "?" then
+irc.command( "-", function( nick, args )
+	if args == "" and table.find( added, nick ) then
+		table.removevalue( added, nick )
+		topic()
+	end
+end )
+
+irc.command( "?", function( nick, args )
+	if args == "" then
 		table.sort( added )
 		irc.notice( nick, "%d/%d: %s", #added, MAX, table.concat( added, " " ) )
 	end
-
 end )
 
 irc.on( "KICK", function( args )
