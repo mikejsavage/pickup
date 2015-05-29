@@ -47,6 +47,7 @@ irc.on( "PRIVMSG", function( args, nick )
 			io.writejson( "bans.json", bans )
 		
 		end
+
 	elseif message:find( "^!unban " ) and ops.isop( nick ) then
 		local target = message:match( "^!unban%s+(%S+)$" )
 
