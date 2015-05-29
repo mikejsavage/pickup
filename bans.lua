@@ -17,7 +17,7 @@ irc.on( "PRIVMSG", function( args, nick )
 			bans_list = { "nobody!" }
 		end
 
-		irc.send( "PRIVMSG", "%s :the following people enjoy weiners: %s", CHANNEL, table.concat( bans_list ) )
+		irc.send( "PRIVMSG", "%s :the following people enjoy weiners: %s", CHANNEL, table.concat( bans_list, " " ) )
 
 	elseif message:find( "^!ban " ) and ops.isop( nick ) then
 		local target, games = message:match( "^!ban%s+(%S+)%s+(%d+)$" )
