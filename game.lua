@@ -4,7 +4,7 @@ local maps = require( "maps" )
 local bans = require( "bans" )
 
 local added = { }
-local MAX = 2
+local MAX = 8
 
 local function topic()
 	local cmd = ops.isop( NICK ) and "TOPIC" or "PRIVMSG"
