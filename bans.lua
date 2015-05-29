@@ -32,7 +32,7 @@ irc.on( "PRIVMSG", function( args, nick )
 			end
 		end
 
-		if target then
+		if target and games < 2 ^ 16 then
 			target = target:lower()
 
 			if not bans[ target ] then
