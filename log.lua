@@ -16,6 +16,6 @@ local function logger( path, echo )
 end
 
 _M.traffic = logger( "traffic.log" )
-_M.error = logger( "error.log" )
+_M.error = logger( "error.log", true )
 
 return _M
