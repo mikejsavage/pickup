@@ -28,6 +28,8 @@ irc.on( "PRIVMSG", function( args, nick )
 			if target then
 				games = 3
 			end
+		else
+			games = tonumber( games )
 		end
 
 		if target and games < 2 ^ 16 then
