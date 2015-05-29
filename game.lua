@@ -52,12 +52,12 @@ irc.on( "KICK", function( args )
 	table.removevalue( added, kicked )
 end )
 
-irc.on( "NICK", function( args, nick )
-	local old = args:sub( 2 )
+irc.on( "NICK", function( _, nick, target )
+	local new = target:sub( 2 )
 
-	local i = table.find( added, old )
+	local i = table.find( added, nick )
 	if i then
-		added[ i ] = nick
+		added[ i ] = new
 	end
 end )
 

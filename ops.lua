@@ -29,19 +29,19 @@ irc.on( "MODE", function( args, nick, target )
 				break
 			end
 
-			if mode == "@" then
+			if mode == "o" then
 				ops[ nick ] = pm == "+" or nil
 			end
 		end
 	end
 end )
 
-irc.on( "NICK", function( args, nick )
-	local old = args:sub( 2 )
+irc.on( "NICK", function( _, nick, target )
+	local new = target:sub( 2 )
 
-	if ops[ old ] then
-		ops[ old ] = nil
-		ops[ nick ] = true
+	if ops[ nick ] then
+		ops[ nick ] = nil
+		ops[ new ] = true
 	end
 end )
 
