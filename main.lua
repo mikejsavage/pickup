@@ -27,10 +27,10 @@ irc.on( "MODE", function( args, nick, target )
 	if target == NICK and nick == NICK and args == "+i" then
 		local password = io.contents( "password.txt" )
 		if password then
-			irc.send( "PRIVMSG", "Q@CServe.quakenet.org :auth %s %s", NICK, password:trim() )
+			irc.send( "PRIVMSG Q@CServe.quakenet.org :auth %s %s", NICK, password:trim() )
 		end
 
-		irc.send( "JOIN", CHANNEL )
+		irc.send( "JOIN %s", CHANNEL )
 	end
 end )
 

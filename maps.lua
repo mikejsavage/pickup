@@ -8,7 +8,7 @@ irc.on( "PRIVMSG", function( args, nick )
 	local message = args:sub( 2 )
 
 	if message == "!maps" then
-		irc.send( "PRIVMSG", "%s :%s", CHANNEL, table.concat( pool, " " ) )
+		irc.say( "%s", table.concat( pool, " " ) )
 	end
 
 	if message:find( "^!maps " ) then
@@ -18,7 +18,7 @@ irc.on( "PRIVMSG", function( args, nick )
 				table.insert( pool, map )
 			end
 			current = math.random( #pool )
-			irc.send( "PRIVMSG", "%s :%s: %s", CHANNEL, nick, table.concat( pool, " " ) )
+			irc.say( "%s: %s", nick, table.concat( pool, " " ) )
 		end
 	end
 end )

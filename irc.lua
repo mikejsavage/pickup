@@ -21,10 +21,22 @@ function _M.on( cmd, cb )
 	table.insert( subs[ cmd ], cb )
 end
 
-function _M.send( cmd, form, ... )
+function _M.send( form, ... )
 	local full = cmd .. " " .. form:format( ... )
 	con:write( full .. "\r\n\r\n" )
 	log.traffic( "OUT %s", full )
+end
+
+function _M.say( form, ... )
+	_M.send( "PRIVMSG %s :" .. form, CHANNEL, ... )
+end
+
+function _M.notice( nick, form, ... )
+	_M.send( "NOTICE %s :" .. form, nick, ... )
+end
+
+function _M.topic( form, ... )
+	_M.send( "TOPIC %s :" .. form, CHANNEL, ... )
 end
 
 function _M.connect()
@@ -62,7 +74,7 @@ function _M.connect()
 end
 
 _M.on( "PING", function( args )
-	_M.send( "PONG", args )
+	_M.send( "PONG %s", args )
 end )
 
 return _M

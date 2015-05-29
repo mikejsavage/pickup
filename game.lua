@@ -7,9 +7,9 @@ local added = { }
 local MAX = 8
 
 local function topic()
-	local cmd = ops.isop( NICK ) and "TOPIC" or "PRIVMSG"
+	local cmd = ops.isop( NICK ) and irc.topic or irc.say
 
-	irc.send( cmd, "%s :%d/%d", CHANNEL, #added, MAX )
+	cmd( "%d/%d", #added, MAX )
 end
 
 irc.on( "PRIVMSG", function( args, nick )
@@ -17,15 +17,15 @@ irc.on( "PRIVMSG", function( args, nick )
 
 	if message == "+" then
 		if bans.isbanned( nick ) then
-			irc.send( "PRIVMSG", "%s :%s: go away", CHANNEL, nick )
+			irc.say( "%s: go away", nick )
 			
 		elseif not table.find( added, nick ) then
 			table.insert( added, nick )
 
 			if #added == MAX then
 				table.sort( added )
-				irc.send( "PRIVMSG", "%s :join the server pls nerds: %s. callvote map %s",
-					CHANNEL, table.concat( added, " " ), maps.next() )
+				irc.say( "join the server pls nerds: %s. callvote map %s",
+					table.concat( added, " " ), maps.next() )
 				added = { }
 
 				bans.decrement()
@@ -42,7 +42,7 @@ irc.on( "PRIVMSG", function( args, nick )
 
 	elseif message == "?" then
 		table.sort( added )
-		irc.send( "NOTICE", "%s :%d/%d: %s", nick, #added, MAX, table.concat( added, " " ) )
+		irc.notice( nick, "%d/%d: %s", #added, MAX, table.concat( added, " " ) )
 	end
 
 end )

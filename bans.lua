@@ -17,7 +17,7 @@ irc.on( "PRIVMSG", function( args, nick )
 			bans_list = { "nobody!" }
 		end
 
-		irc.send( "PRIVMSG", "%s :the following people enjoy weiners: %s", CHANNEL, table.concat( bans_list, " " ) )
+		irc.say( "the following people enjoy weiners: %s", table.concat( bans_list, " " ) )
 
 	elseif message:find( "^!ban " ) and ops.isop( nick ) then
 		local target, games = message:match( "^!ban%s+(%S+)%s+(%d+)$" )
@@ -40,8 +40,8 @@ irc.on( "PRIVMSG", function( args, nick )
 			end
 			bans[ target ] = bans[ target ] + games
 
-			irc.send( "PRIVMSG", "%s :%s: %s is banned for %d %s",
-				CHANNEL, nick, target, bans[ target ],
+			irc.say( "%s: banned %s for %d %s",
+				nick, target, bans[ target ],
 				bans[ target ] == 1 and "game" or "games" )
 
 			io.writejson( "bans.json", bans )
@@ -53,7 +53,7 @@ irc.on( "PRIVMSG", function( args, nick )
 
 		if target then
 			bans[ target:lower() ] = nil
-			irc.send( "PRIVMSG", "%s :%s: ok", CHANNEL, nick )
+			irc.say( "%s: ok", nick )
 
 			io.writejson( "bans.json", bans )
 		end
