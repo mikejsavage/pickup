@@ -16,7 +16,13 @@ end )
 irc.on( "MODE", function( args, nick, target )
 	if target == CHANNEL then
 		local modes = args:match( "^(%S+)" )
-		local nicks_iter = args:match( "^%S+%s+(.*)$" ):gmatch( "(%S+)" )
+		local nicks = args:match( "^%S+%s+(.*)$" )
+
+		if not modes or not nicks then
+			return
+		end
+
+		local nicks_iter = nicks:gmatch( "(%S+)" )
 		local lastpm
 
 		for pm, mode in modes:gmatch( "([+-]?)([^-+])" ) do
