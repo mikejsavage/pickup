@@ -4,7 +4,7 @@ local maps = require( "maps" )
 local bans = require( "bans" )
 
 local added = { }
-local MAX = 8
+local MAX = 2
 
 local function topic()
 	local cmd = ops.isop( NICK ) and "TOPIC" or "PRIVMSG"
@@ -25,7 +25,7 @@ irc.on( "PRIVMSG", function( args, nick )
 			if #added == MAX then
 				table.sort( added )
 				irc.send( "PRIVMSG", "%s :join the server pls nerds: %s. callvote map %s",
-					CHANNEL, table.concat( added ), maps.next() )
+					CHANNEL, table.concat( added, " " ), maps.next() )
 				added = { }
 
 				bans.decrement()
