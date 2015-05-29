@@ -30,7 +30,7 @@ irc.command( "!ban", {
 	end,
 
 	[ "^(%S+)%s+(%d+)$" ] = function( nick, target, games )
-		ban( nick, target, games )
+		ban( nick, target, tonumber( games ) )
 	end,
 } )
 
