@@ -73,34 +73,6 @@ function table.removevalue( self, value )
 	end
 end
 
-function table.shuffle( self )
-	local n = #self
-
-	while n > 1 do
-		local k = math.random( n )
-		self[ n ], self[ k ] = self[ k ], self[ n ]
-		n = n - 1
-	end
-end
-
-function table.split( self, n )
-	local t1 = { }
-	local t2 = { }
-
-	for i = 1, n do
-		table.insert( t1, self[ i ] )
-	end
-	for i = n + 1, #self do
-		table.insert( t2, self[ i ] )
-	end
-	
-	return t1, t2
-end
-
-function string.hasprefix( self, prefix )
-	return self:sub( 1, #prefix ) == prefix
-end
-
 function string.trim( self )
 	return self:match( "^%s*(.-)%s*$" )
 end
