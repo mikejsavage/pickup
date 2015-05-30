@@ -1,3 +1,5 @@
+table.unpack = table.unpack or unpack
+
 -- % = string.format
 getmetatable( "" ).__mod = function( self, form )
 	if type( form ) == "table" then
