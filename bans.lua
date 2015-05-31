@@ -1,5 +1,6 @@
 local irc = require( "irc" )
 local ops = require( "ops" )
+local game = require( "game" )
 
 local bans = io.readjson( "bans.json" ) or { }
 
@@ -9,6 +10,8 @@ local function ban( nick, target, games )
 	if not ops.isop( nick ) or games > 2 ^ 16 then
 		return
 	end
+
+	game.remove( target )
 
 	target = target:lower()
 
