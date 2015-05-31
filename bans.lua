@@ -7,7 +7,7 @@ local bans = io.readjson( "bans.json" ) or { }
 local DEFAULT = 3
 
 local function ban( nick, target, games )
-	if not ops.isop( nick ) or games > 2 ^ 16 then
+	if not ops.isop( nick ) or games > 2 ^ 16 or games < 1 then
 		return
 	end
 
