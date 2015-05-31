@@ -12,6 +12,15 @@ local function topic()
 	cmd( "%d/%d", #added, MAX )
 end
 
+local _M = { }
+
+function _M.remove( nick )
+	if table.find( added, nick ) then
+		table.removevalue( added, nick )
+		topic()
+	end
+end
+
 irc.command( "+", function( nick, args )
 	if args ~= "" or table.find( added, nick ) then
 		return
@@ -37,9 +46,8 @@ irc.command( "+", function( nick, args )
 end )
 
 irc.command( "-", function( nick, args )
-	if args == "" and table.find( added, nick ) then
-		table.removevalue( added, nick )
-		topic()
+	if args == "" then
+		_M.remove( nick )
 	end
 end )
 
@@ -52,7 +60,7 @@ end )
 
 irc.on( "KICK", function( args )
 	local kicked = args:match( "^(.-) :" )
-	table.removevalue( added, kicked )
+	_M.remove( kicked )
 end )
 
 irc.on( "NICK", function( _, nick, target )
@@ -65,8 +73,10 @@ irc.on( "NICK", function( _, nick, target )
 end )
 
 local function part_or_quit( _, nick )
-	table.removevalue( added, nick )
+	_M.remove( nick )
 end
 
 irc.on( "PART", part_or_quit )
 irc.on( "QUIT", part_or_quit )
+
+return _M
