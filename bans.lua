@@ -1,6 +1,5 @@
 local irc = require( "irc" )
 local ops = require( "ops" )
-local game = require( "game" )
 
 local bans = io.readjson( "bans.json" ) or { }
 
@@ -11,6 +10,7 @@ local function ban( nick, target, games )
 		return
 	end
 
+	local game = require( "game" )
 	game.remove( target )
 
 	target = target:lower()
