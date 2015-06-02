@@ -12,14 +12,16 @@ local function topic()
 	cmd( "%d/%d", #added, MAX )
 end
 
-local _M = { }
-
-function _M.remove( nick )
+local function remove( nick )
 	if table.find( added, nick ) then
 		table.removevalue( added, nick )
 		topic()
 	end
 end
+
+bans.onban( function( nick )
+	remove( nick )
+end )
 
 irc.command( "+", function( nick, args )
 	if args ~= "" or table.find( added, nick ) then
@@ -78,5 +80,3 @@ end
 
 irc.on( "PART", part_or_quit )
 irc.on( "QUIT", part_or_quit )
-
-return _M

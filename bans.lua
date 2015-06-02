@@ -1,17 +1,20 @@
+local DEFAULT = 3
+
 local irc = require( "irc" )
 local ops = require( "ops" )
 
 local bans = io.readjson( "bans.json" ) or { }
 
-local DEFAULT = 3
+local onbans = { }
 
 local function ban( nick, target, games )
 	if not ops.isop( nick ) or games > 2 ^ 16 or games < 1 then
 		return
 	end
 
-	local game = require( "game" )
-	game.remove( target )
+	for _, cb in ipairs( onbans ) do
+		cb( target )
+	end
 
 	target = target:lower()
 
@@ -64,6 +67,10 @@ irc.command( "!bans", function( nick )
 end )
 
 local _M = { }
+
+function _M.onban( cb )
+	table.insert( onbans, cb )
+end
 
 function _M.isbanned( nick )
 	return bans[ nick:lower() ] ~= nil
