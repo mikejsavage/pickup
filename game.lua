@@ -49,7 +49,7 @@ end )
 
 irc.command( "-", function( nick, args )
 	if args == "" then
-		_M.remove( nick )
+		remove( nick )
 	end
 end )
 
@@ -62,7 +62,7 @@ end )
 
 irc.on( "KICK", function( args )
 	local kicked = args:match( "^(.-) :" )
-	_M.remove( kicked )
+	remove( kicked )
 end )
 
 irc.on( "NICK", function( _, nick, target )
@@ -75,7 +75,7 @@ irc.on( "NICK", function( _, nick, target )
 end )
 
 local function part_or_quit( _, nick )
-	_M.remove( nick )
+	remove( nick )
 end
 
 irc.on( "PART", part_or_quit )
