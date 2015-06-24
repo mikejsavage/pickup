@@ -37,9 +37,11 @@ irc.command( "+", function( nick, args )
 
 	if #added == MAX then
 		table.sort( added )
-		irc.say( "join the server pls nerds: %s. callvote map %s",
-			table.concat( added, " " ), maps.next() )
+		local players = table.concat( added, " " )
 		added = { }
+
+		irc.say( "join the server pls nerds: %s. callvote map %s", players, maps.next() )
+		log.bot( "game started: %s", players )
 
 		bans.decrement()
 	end

@@ -17,5 +17,6 @@ end
 
 _M.traffic = logger( "traffic.log" )
 _M.error = logger( "error.log", true )
+_M.bot = logger( "bot.log", true )
 
 return _M
