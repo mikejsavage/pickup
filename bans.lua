@@ -47,8 +47,11 @@ irc.command( "!unban", function( nick, target )
 		return
 	end
 
-	bans[ target:lower() ] = nil
+	target = target:lower()
+
+	bans[ target ] = nil
 	irc.say( "%s: ok", nick )
+	log.bot( "%s unbanned %s", nick, target )
 
 	io.writejson( "bans.json", bans )
 end )
