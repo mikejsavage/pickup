@@ -26,6 +26,8 @@ local function ban( nick, target, games )
 	irc.say( "%s: %s is banned for %d %s",
 		nick, target, bans[ target ],
 		bans[ target ] == 1 and "game" or "games" )
+	log.bot( "%s banned %s for %d (now %d)",
+		nick, target, games, bans[ target ] )
 
 	io.writejson( "bans.json", bans )
 end
@@ -82,6 +84,8 @@ function _M.decrement()
 	for nick, games in pairs( bans ) do
 		if games > 1 then
 			newbans[ nick ] = games - 1
+		else
+			log.bot( "%s's ban expired", nick )
 		end
 	end
 
