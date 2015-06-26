@@ -8,10 +8,13 @@ local bans = require( "bans" )
 local added = { }
 local numadded = 0
 local afks = { }
+local lastgame = { }
+local votebans = { }
 
 local gametoken = { }
 
 local PLAYERS = 8
+local VOTES_TO_BAN = 4
 local AFK_AFTER = 5 * 60
 local AFK_WAIT_FOR = 2 * 60
 local AFK_HIGHLIGHTS = 4
@@ -43,6 +46,7 @@ end )
 local function start_game()
 	local names = table.concatkeys( added, " " )
 
+	lastgame = added
 	added = { }
 	numadded = 0
 	votebans = { }
@@ -123,6 +127,22 @@ end )
 irc.command( "?", function( nick, args )
 	if args == "" then
 		irc.notice( nick, "%d/%d: %s", numadded, PLAYERS, table.concatkeys( added, " " ) )
+	end
+end )
+
+irc.command( "!voteban", function( nick, args )
+	if lastgame[ nick ] and lastgame[ args ] then
+		votebans[ args ] = ( votebans[ args ] or 0 ) + 1
+
+		if votebans[ args ] == VOTES_TO_BAN then
+			bans.ban( args, 1 )
+
+			irc.say( "banned %s for one game", args )
+			log.bot( "%s was votebanned", args )
+
+			votebans[ args ] = nil
+			lastgame[ args ] = nil
+		end
 	end
 end )
 

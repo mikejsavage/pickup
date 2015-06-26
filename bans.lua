@@ -7,29 +7,21 @@ local bans = io.readjson( "bans.json" ) or { }
 
 local onbans = { }
 
+local _M = { }
+
 local function ban( nick, target, games )
 	if not ops.isop( nick ) or games > 2 ^ 16 or games < 1 then
 		return
 	end
 
-	for _, cb in ipairs( onbans ) do
-		cb( target )
-	end
-
 	target = target:lower()
-
-	if not bans[ target ] then
-		bans[ target ] = 0
-	end
-	bans[ target ] = bans[ target ] + games
+	_M.ban( target, games )
 
 	irc.say( "%s: %s is banned for %d %s",
 		nick, target, bans[ target ],
 		bans[ target ] == 1 and "game" or "games" )
 	log.bot( "%s banned %s for %d (now %d)",
 		nick, target, games, bans[ target ] )
-
-	io.writejson( "bans.json", bans )
 end
 
 irc.command( "!ban", {
@@ -71,7 +63,20 @@ irc.command( "!bans", function( nick )
 		table.concat( bans_list, " " ) )
 end )
 
-local _M = { }
+function _M.ban( target, games )
+	for _, cb in ipairs( onbans ) do
+		cb( target )
+	end
+
+	target = target:lower()
+
+	if not bans[ target ] then
+		bans[ target ] = 0
+	end
+	bans[ target ] = bans[ target ] + games
+
+	io.writejson( "bans.json", bans )
+end
 
 function _M.onban( cb )
 	table.insert( onbans, cb )
