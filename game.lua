@@ -55,7 +55,6 @@ local function start_game()
 	gametoken = { }
 
 	irc.say( "join the server pls nerds: %s. callvote map %s", names, maps.next() )
-	topic()
 	log.bot( "game started: %s", names )
 
 	bans.decrement()
@@ -169,6 +168,7 @@ irc.on( "PRIVMSG", function( _, nick )
 
 		if table.isempty( afks ) and numadded == PLAYERS then
 			start_game()
+			topic()
 		end
 	end
 end )
