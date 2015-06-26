@@ -1,6 +1,6 @@
 #! /usr/bin/lua5.2
 
-NICK = "FLAGBOT"
+BOT_NICK = "FLAGBOT"
 CHANNEL = "#ctf"
 HOST = "irc.quakenet.org"
 PORT = 6667
@@ -24,10 +24,10 @@ require( "game" )
 local irc = require( "irc" )
 
 irc.on( "MODE", function( args, nick, target )
-	if target == NICK and nick == NICK and args == "+i" then
+	if target == BOT_NICK and nick == BOT_NICK and args == "+i" then
 		local password = io.contents( "password.txt" )
 		if password then
-			irc.send( "PRIVMSG Q@CServe.quakenet.org :auth %s %s", NICK, password:trim() )
+			irc.send( "PRIVMSG Q@CServe.quakenet.org :auth %s %s", BOT_NICK, password:trim() )
 		end
 
 		irc.send( "JOIN %s", CHANNEL )
@@ -37,7 +37,7 @@ end )
 irc.on( "KICK", function( args )
 	local kicked = args:match( "^(.-) :" )
 
-	if kicked == NICK then
+	if kicked == BOT_NICK then
 		return os.exit( 0 )
 	end
 end )

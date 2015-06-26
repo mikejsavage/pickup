@@ -56,8 +56,8 @@ function _M.connect()
 		con = socket.connect( HOST, PORT )
 		log.traffic( "socket.connect( %s, %s )", HOST, PORT )
 
-		con:write( "USER " .. NICK .. " " .. " " .. NICK .. " " ..  NICK .. " " .. ":" .. NICK .. "\r\n\r\n" )
-		con:write( "NICK " .. NICK .. "\r\n\r\n" )
+		con:write( "USER " .. BOT_NICK .. " " .. " " .. BOT_NICK .. " " ..  BOT_NICK .. " " .. ":" .. BOT_NICK .. "\r\n\r\n" )
+		con:write( "NICK " .. BOT_NICK .. "\r\n\r\n" )
 
 		for line in con:lines() do
 			log.traffic( "IN  %s", line )
