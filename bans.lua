@@ -42,6 +42,7 @@ irc.command( "!unban", function( nick, target )
 	target = target:lower()
 
 	bans[ target ] = nil
+
 	irc.say( "%s: ok", nick )
 	log.bot( "%s unbanned %s", nick, target )
 
@@ -63,6 +64,28 @@ irc.command( "!bans", function( nick )
 		table.concat( bans_list, " " ) )
 end )
 
+irc.command( "sorry", function( nick )
+	if bans[ nick:lower() ] == 0 then
+		bans[ nick:lower() ] = nil
+		io.writejson( "bans.json", bans )
+
+		irc.say( "%s: apology accepted!", nick )
+		log.bot( "%s's ban expired", nick )
+	end
+end )
+
+local function rude( nick )
+	bans[ nick:lower() ] = 1
+	io.writejson( "bans.json", bans )
+
+	irc.say( "%s :(", nick )
+	log.bot( "%s hurt %s's feelings", nick, BOT_NICK )
+end
+
+irc.command( "no", rude )
+irc.command( "fuck", rude )
+irc.command( "wtf", rude )
+
 function _M.ban( target, games )
 	for _, cb in ipairs( onbans ) do
 		cb( target )
@@ -82,22 +105,25 @@ function _M.onban( cb )
 	table.insert( onbans, cb )
 end
 
-function _M.isbanned( nick )
-	return bans[ nick:lower() ] ~= nil
-end
+function _M.checkban( nick )
+	nick = nick:lower()
 
-function _M.decrement()
-	local newbans = { }
-
-	for nick, games in pairs( bans ) do
-		if games > 1 then
-			newbans[ nick ] = games - 1
+	if bans[ nick ] then
+		if bans[ nick ] == 0 then
+			irc.say( "%s: apologise", nick )
 		else
-			log.bot( "%s's ban expired", nick )
+			irc.say( "%s: go away", nick )
 		end
 	end
 
-	bans = newbans
+	return bans[ nick ] ~= nil
+end
+
+function _M.decrement()
+	for nick, games in pairs( bans ) do
+		bans[ nick ] = math.max( 0, games - 1 )
+	end
+
 	io.writejson( "bans.json", bans )
 end
 

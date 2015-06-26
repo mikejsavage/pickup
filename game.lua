@@ -66,8 +66,7 @@ irc.command( "+", function( nick, args )
 		return
 	end
 
-	if bans.isbanned( nick ) then
-		irc.say( "%s: go away", nick )
+	if bans.checkban( nick ) then
 		return
 	end
 
