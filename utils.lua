@@ -58,21 +58,22 @@ function io.contents( path )
 	return contents
 end
 
-function table.find( self, value )
-	for i = 1, #self do
-		if self[ i ] == value then
-			return i
-		end
-	end
+function table.isempty( self )
+	return #self == 0 and next( self ) == nil
 end
 
-function table.removevalue( self, value )
-	for i = 1, #self do
-		if self[ i ] == value then
-			table.remove( self, i )
-			return
-		end
+function table.keys( self )
+	local keys = { }
+	for k in pairs( self ) do
+		table.insert( keys, k )
 	end
+	return keys
+end
+
+function table.concatkeys( self, sep )
+	local keys = table.keys( self )
+	table.sort( keys )
+	return table.concat( keys, sep )
 end
 
 function string.trim( self )
