@@ -60,6 +60,31 @@ local function start_game()
 	bans.decrement()
 end
 
+local function highlight_afks()
+	local token = gametoken
+
+	loop:wrap( function()
+		for i = 1, AFK_HIGHLIGHTS do
+			if token.started or token.cancelled then
+				break
+			end
+
+			irc.say( "some ppl might be afk: %s", table.concatkeys( afks, " " ) )
+			cqueues.sleep( AFK_WAIT_FOR / AFK_HIGHLIGHTS )
+		end
+
+		if not token.started then
+			for nick in pairs( afks ) do
+				added[ nick ] = nil
+				numadded = numadded - 1
+			end
+			topic()
+			irc.say( "let's try this again without: %s", table.concatkeys( afks, " " ) )
+			afks = { }
+		end
+	end )
+end
+
 irc.command( "+", function( nick, args )
 	if args ~= "" or added[ nick ] then
 		return
@@ -88,28 +113,7 @@ irc.command( "+", function( nick, args )
 		if table.isempty( afks ) then
 			start_game()
 		else
-			local token = gametoken
-
-			loop:wrap( function()
-				for i = 1, AFK_HIGHLIGHTS do
-					if token.started or token.cancelled then
-						break
-					end
-
-					irc.say( "some ppl might be afk: %s", table.concatkeys( afks, " " ) )
-					cqueues.sleep( AFK_WAIT_FOR / AFK_HIGHLIGHTS )
-				end
-
-				if not token.started then
-					for nick in pairs( afks ) do
-						added[ nick ] = nil
-						numadded = numadded - 1
-					end
-					topic()
-					irc.say( "let's try this again without: %s", table.concatkeys( afks, " " ) )
-					afks = { }
-				end
-			end )
+			highlight_afks()
 		end
 	end
 
