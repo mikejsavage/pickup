@@ -19,8 +19,8 @@ local AFK_AFTER = 5 * 60
 local AFK_WAIT_FOR = 2 * 60
 local AFK_HIGHLIGHTS = 4
 
-local function topic()
-	local cmd = ops.isop( BOT_NICK ) and irc.topic or irc.say
+local function update_topic()
+	local cmd = ops.isop( BOT_NICK ) and irc.update_topic or irc.say
 
 	cmd( "%d/%d", numadded, PLAYERS )
 end
@@ -35,7 +35,7 @@ local function remove( nick )
 		added[ nick ] = nil
 		numadded = numadded - 1
 
-		topic()
+		update_topic()
 	end
 end
 
@@ -78,7 +78,7 @@ local function highlight_afks()
 				added[ nick ] = nil
 				numadded = numadded - 1
 			end
-			topic()
+			update_topic()
 			irc.say( "let's try this again without: %s", table.concatkeys( afks, " " ) )
 			afks = { }
 		end
@@ -117,7 +117,7 @@ irc.command( "+", function( nick, args )
 		end
 	end
 
-	topic()
+	update_topic()
 end )
 
 irc.command( "-", function( nick, args )
@@ -172,7 +172,7 @@ irc.on( "PRIVMSG", function( _, nick )
 
 		if table.isempty( afks ) and numadded == PLAYERS then
 			start_game()
-			topic()
+			update_topic()
 		end
 	end
 end )
