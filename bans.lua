@@ -75,11 +75,13 @@ irc.command( "sorry", function( nick )
 end )
 
 local function rude( nick )
-	bans[ nick:lower() ] = 1
-	io.writejson( "bans.json", bans )
+	if bans[ nick:lower() ] == 0 then
+		bans[ nick:lower() ] = 1
+		io.writejson( "bans.json", bans )
 
-	irc.say( "%s :(", nick )
-	log.bot( "%s hurt %s's feelings", nick, BOT_NICK )
+		irc.say( "%s :(", nick )
+		log.bot( "%s hurt %s's feelings", nick, BOT_NICK )
+	end
 end
 
 irc.command( "no", rude )
