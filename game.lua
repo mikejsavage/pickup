@@ -20,7 +20,7 @@ local AFK_WAIT_FOR = 2 * 60
 local AFK_HIGHLIGHTS = 4
 
 local function update_topic()
-	local cmd = ops.isop( BOT_NICK ) and irc.update_topic or irc.say
+	local cmd = ops.isop( BOT_NICK ) and irc.topic or irc.say
 
 	cmd( "%d/%d", numadded, PLAYERS )
 end
