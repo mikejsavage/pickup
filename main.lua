@@ -25,9 +25,9 @@ local irc = require( "irc" )
 
 irc.on( "MODE", function( args, nick, target )
 	if target == BOT_NICK and nick == BOT_NICK and args == "+i" then
-		local password = io.contents( "password.txt" )
-		if password then
-			irc.send( "PRIVMSG Q@CServe.quakenet.org :auth %s %s", BOT_NICK, password:trim() )
+		local auth = io.contents( "auth.txt" )
+		if auth then
+			irc.send( "PRIVMSG Q@CServe.quakenet.org :auth %s", auth:trim() )
 		end
 
 		irc.send( "JOIN %s", CHANNEL )
