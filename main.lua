@@ -1,15 +1,14 @@
-#! /usr/bin/lua5.2
+#! /usr/bin/lua
 
-BOT_NICK = "FLAGBOT"
-CHANNEL = "#ctf"
+BOT_NICK = "PERRINABOT"
+CHANNEL = "#gladiator"
 HOST = "irc.quakenet.org"
 PORT = 6667
 
 require( "utils" )
+require( "sigint" )
 
-local cqueues = require( "cqueues" )
-local thread = require( "cqueues.thread" )
-loop = cqueues.new()
+local ev = require( "ev" )
 
 local ok, arc4 = pcall( require, "arc4random" )
 if ok then
@@ -44,4 +43,4 @@ end )
 
 irc.connect()
 
-assert( loop:loop() )
+assert( ev.Loop.default:loop() )

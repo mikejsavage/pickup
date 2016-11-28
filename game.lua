@@ -1,4 +1,4 @@
-local cqueues = require( "cqueues" )
+local ev = require( "ev" )
 
 local irc = require( "irc" )
 local ops = require( "ops" )
@@ -13,10 +13,10 @@ local votebans = { }
 
 local gametoken = { }
 
-local PLAYERS = 8
-local VOTES_TO_BAN = 4
-local AFK_AFTER = 5 * 60
-local AFK_WAIT_FOR = 2 * 60
+local PLAYERS = 3
+local VOTES_TO_BAN = 1
+local AFK_AFTER = 5 -- * 60
+local AFK_WAIT_FOR = 10  --2 * 60
 local AFK_HIGHLIGHTS = 4
 
 local function update_topic()
@@ -60,20 +60,15 @@ local function start_game()
 	bans.decrement()
 end
 
-local function highlight_afks()
-	local token = gametoken
-
-	loop:wrap( function()
-		for i = 1, AFK_HIGHLIGHTS do
-			if token.started or token.cancelled then
-				break
-			end
-
-			irc.say( "some ppl might be afk: %s", table.concatkeys( afks, " " ) )
-			cqueues.sleep( AFK_WAIT_FOR / AFK_HIGHLIGHTS )
+local function wait_for_afks( token )
+	local n = 0
+	local function helper()
+		if token.started or token.cancelled then
+			return
 		end
 
-		if not token.started then
+		n = n + 1
+		if n == AFK_HIGHLIGHTS then
 			for nick in pairs( afks ) do
 				added[ nick ] = nil
 				numadded = numadded - 1
@@ -81,8 +76,17 @@ local function highlight_afks()
 			update_topic()
 			irc.say( "let's try this again without: %s", table.concatkeys( afks, " " ) )
 			afks = { }
+
+			return
 		end
-	end )
+
+		irc.say( "some ppl might be afk: %s", table.concatkeys( afks, " " ) )
+
+		local timer = ev.Timer.new( helper, AFK_WAIT_FOR / AFK_HIGHLIGHTS, 0 )
+		timer:start( ev.Loop.default )
+	end
+
+	helper()
 end
 
 irc.command( "+", function( nick, args )
@@ -113,7 +117,7 @@ irc.command( "+", function( nick, args )
 		if table.isempty( afks ) then
 			start_game()
 		else
-			highlight_afks()
+			wait_for_afks( gametoken )
 		end
 	end
 

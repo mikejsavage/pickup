@@ -1,9 +1,10 @@
-local cqueues = require( "cqueues" )
-local socket = require( "cqueues.socket" )
+local ev = require( "ev" )
+local socket = require( "socket" )
 
 local _M = { }
 
-local con
+local loop = ev.Loop.default
+local sock
 
 local listeners = { }
 local commands = { }
@@ -25,7 +26,7 @@ end
 
 function _M.send( form, ... )
 	local full = form:format( ... )
-	con:write( full .. "\r\n\r\n" )
+	sock:send( full .. "\r\n\r\n" )
 	log.traffic( "OUT %s", full )
 end
 
@@ -51,38 +52,76 @@ function _M.command( name, callbacks )
 	commands[ name ] = callbacks
 end
 
-function _M.connect()
-	loop:wrap( function()
-		con = socket.connect( HOST, PORT )
-		log.traffic( "socket.connect( %s, %s )", HOST, PORT )
+local buf = ""
+local function data_handler()
+	local _, err, data = sock:receive( "*a" )
 
-		con:write( "USER " .. BOT_NICK .. " " .. " " .. BOT_NICK .. " " ..  BOT_NICK .. " " .. ":" .. BOT_NICK .. "\r\n\r\n" )
-		con:write( "NICK " .. BOT_NICK .. "\r\n\r\n" )
+	if err == "closed" then
+		os.exit( 1 )
+	end
 
-		for line in con:lines() do
-			log.traffic( "IN  %s", line )
+	if not data then
+		data = _
+	end
 
-			if line:sub( 1, 1 ) == ":" then
-				local nick, host, cmd, target, args = line:match( "^:([^!%s]-)!?([^!%s]+)%s+(%S+)%s+(%S+)%s*(.*)$" )
+	buf = buf .. data:gsub( "\r", "" )
 
-				if cmd then
-					publish( cmd, args, nick, target )
-				else
-					log.error( "Couldn't parse line: %s", line )
-				end
-			else
-				local cmd, args = line:match( "^(%S+)%s+(.*)$" )
-
-				if cmd then
-					publish( cmd, args )
-				else
-					log.error( "Couldn't parse line: %s", line )
-				end
-			end
+	while true do
+		local line, len = buf:match( "^([^\n]*)\n()" )
+		if not line then
+			return
 		end
 
-		os.exit( 0 )
-	end )
+		buf = buf:sub( len )
+
+		log.traffic( "IN  %s", line )
+
+		if line:sub( 1, 1 ) == ":" then
+			local nick, host, cmd, target, args = line:match( "^:([^!%s]-)!?([^!%s]+)%s+(%S+)%s+(%S+)%s*(.*)$" )
+
+			if cmd then
+				publish( cmd, args, nick, target )
+			else
+				log.error( "Couldn't parse line: %s", line )
+			end
+		else
+			local cmd, args = line:match( "^(%S+)%s+(.*)$" )
+
+			if cmd then
+				publish( cmd, args )
+			else
+				log.error( "Couldn't parse line: %s", line )
+			end
+		end
+	end
+end
+
+function _M.connect()
+	sock = socket.tcp()
+	sock:settimeout( 0 )
+
+	sock:connect( HOST, PORT )
+
+	ev.IO.new( function( loop, watcher )
+		local _, err = sock:receive( "*a" )
+
+		if err == "connection refused" then
+			os.exit( 1 )
+		end
+
+
+		ev.IO.new( function( loop, watcher )
+			data_handler()
+		end, sock:getfd(), ev.READ ):start( loop )
+
+		ev.IO.new( function( loop, watcher )
+			sock:send( "USER " .. BOT_NICK .. " " .. " " .. BOT_NICK .. " " ..  BOT_NICK .. " :" .. BOT_NICK .. "\r\n\r\n" )
+			sock:send( "NICK " .. BOT_NICK .. "\r\n\r\n" )
+			watcher:stop( loop )
+		end, sock:getfd(), ev.WRITE ):start( loop )
+
+		watcher:stop( loop )
+	end, sock:getfd(), ev.WRITE ):start( loop )
 end
 
 _M.on( "PING", function( args )
