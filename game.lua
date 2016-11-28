@@ -13,10 +13,10 @@ local votebans = { }
 
 local gametoken = { }
 
-local PLAYERS = 3
-local VOTES_TO_BAN = 1
-local AFK_AFTER = 5 -- * 60
-local AFK_WAIT_FOR = 10  --2 * 60
+local PLAYERS = 4
+local VOTES_TO_BAN = 3
+local AFK_AFTER = 5 * 60
+local AFK_WAIT_FOR = 2 * 60
 local AFK_HIGHLIGHTS = 4
 
 local function update_topic()
